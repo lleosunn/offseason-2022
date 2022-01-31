@@ -1,12 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -14,16 +12,10 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
-
-
 @Autonomous
-public class gyroback extends LinearOpMode {
-
+public class gyro extends LinearOpMode {
 
     BNO055IMU imu;
     BNO055IMU.Parameters parameters;
@@ -87,36 +79,11 @@ public class gyroback extends LinearOpMode {
         DcMotor bl = hardwareMap.get(DcMotor.class, "bl");
         DcMotor br = hardwareMap.get(DcMotor.class, "br");
         motorblock block = new motorblock(tl, tr, bl, br);
-
         imuinit();
         waitForStart();
         while (opModeIsActive()) {
             double power = 0.3;
-
-
-            telemetry.addData("angle", getAngle());
-            telemetry.update();
-            if (getAngle() < -1){ //turn left
-                tl.setPower(-(power - (0.01 * getAngle())));
-                tr.setPower((power + (0.01 * getAngle())));
-                bl.setPower(-(power - (0.01 * getAngle())));
-                br.setPower((power + (0.01 * getAngle())));
-            } else if (getAngle() > 1){ //turn right
-                tl.setPower(-(power - (0.01 * getAngle())));
-                tr.setPower((power + (0.01 * getAngle())));
-                bl.setPower(-(power - (0.01 * getAngle())));
-                br.setPower((power + (0.01 * getAngle())));
-            } else {
-                tl.setPower(-power);
-                tr.setPower(power);
-                bl.setPower(-power);
-                br.setPower(power);
-            }
-
-
-
-
-
+            block.leftturn(0.075*getAngle());
         }
     }
 }

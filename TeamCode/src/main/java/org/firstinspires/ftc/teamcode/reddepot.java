@@ -1,16 +1,21 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-
+import java.util.List;
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
+import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -18,14 +23,16 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
-
-
 @Autonomous
 public class reddepot extends LinearOpMode {
 
-    private DistanceSensor sensorRange;
+    private DcMotor tl = null;
+    private DcMotor tr = null;
+    private DcMotor bl = null;
+    private DcMotor br = null;
+    private DcMotor intake = null;
+    private DcMotor arm = null;
+    private DistanceSensor sensorRange1;
     private DistanceSensor sensorRange2;
     private DistanceSensor sensorRange3;
 
@@ -44,7 +51,6 @@ public class reddepot extends LinearOpMode {
         imu.initialize(parameters);
 
         telemetry.addData("Gyro Mode", "calibrating...");
-
         telemetry.update();
 
 
@@ -85,149 +91,151 @@ public class reddepot extends LinearOpMode {
         return globalAngle;
     }
 
-    public void runOpMode() throws InterruptedException {
-        DcMotor tl = hardwareMap.get(DcMotor.class, "tl");
-        DcMotor tr = hardwareMap.get(DcMotor.class, "tr");
-        DcMotor bl = hardwareMap.get(DcMotor.class, "bl");
-        DcMotor br = hardwareMap.get(DcMotor.class, "br");
-        DcMotor intake = hardwareMap.get(DcMotor.class,"intake");
-        DcMotor transfer = hardwareMap.get(DcMotor.class, "transfer");
-        DcMotor shooter = hardwareMap.get(DcMotor.class, "shooter");
-        DcMotor arm = hardwareMap.get(DcMotor.class, "arm");
-        Servo claw1 = hardwareMap.get(Servo.class, "claw1");
-        Servo claw2 = hardwareMap.get(Servo.class, "claw2");
-        Servo stopper = hardwareMap.get(Servo.class, "stopper");
-        motorblock block = new motorblock(tl, tr, bl, br);
-        sensorRange = hardwareMap.get(DistanceSensor.class, "sensor_range");
-        sensorRange2 = hardwareMap.get(DistanceSensor.class, "sensor_range2");
-        sensorRange3 = hardwareMap.get(DistanceSensor.class, "sensor_range3");
+    private static final String TFOD_MODEL_ASSET = "FreightFrenzy_BCDM.tflite";
+    private static final String[] LABELS = {
+            "Ball",
+            "Cube",
+            "Duck",
+    };
 
-        Rev2mDistanceSensor sensorTimeOfFlight = (Rev2mDistanceSensor) sensorRange;
-        Rev2mDistanceSensor sensorTimeOfFlight2 = (Rev2mDistanceSensor) sensorRange2;
-        Rev2mDistanceSensor sensorTimeOfFlight3 = (Rev2mDistanceSensor) sensorRange3;
+    private static final String VUFORIA_KEY =
+            "ASK1IFv/////AAABmfX8FNhgmkD+sKsolRwQ6ShIKlMBrgagR3WWfuzHquZIi3lQ5TFj8sAK1gmeujmQm8I62YVaT/Z3X5XIHGawMeaNm7BnVeU5scz+HdlNLlVrCDbuIb8sJ29tn/mBfWuv3Hvy40iP9uOtEAKi9diyxRsAiytHqfsCvccIem7+C7O6Zbiz3awD5CobXCqevYjWdUGGZarPM2eAyL/NfCswBIdYd1Hjb3VHqJ/tyb1VZdWYlme0pkAKLWbYpRKFlq5Q8EOrzmVWTAw4fCLziKSKYFVFFPNoibGm7cAGsqk+5UD3kOpcoPOhSlDM3GEPMYartSro28s1DB1uFaojEVNE+PJ5fMaWWCsfi9japsdcrP6Q";
 
-        tl.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        tr.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        bl.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        br.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        transfer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    private VuforiaLocalizer vuforia;
 
+    private TFObjectDetector tfod;
 
+    @Override
+    public void runOpMode() {
+
+        initVuforia();
+        initTfod();
         imuinit();
-        waitForStart();
-        while (opModeIsActive()) {
-            stopper.setPosition(1);
-            claw1.setPosition(0);
-            claw2.setPosition(0);
-            while (sensorRange3.getDistance(DistanceUnit.INCH)<60) { //back
-                double power = 0.3;
-                telemetry.addData("angle", getAngle());
-                telemetry.update();
-                if (getAngle() < -1){ //turn left
-                    tl.setPower(-(power - (0.01 * getAngle())));
-                    tr.setPower((power + (0.01 * getAngle())));
-                    bl.setPower(-(power - (0.01 * getAngle())));
-                    br.setPower((power + (0.01 * getAngle())));
-                } else if (getAngle() > 1){ //turn right
-                    tl.setPower(-(power - (0.01 * getAngle())));
-                    tr.setPower((power + (0.01 * getAngle())));
-                    bl.setPower(-(power - (0.01 * getAngle())));
-                    br.setPower((power + (0.01 * getAngle())));
-                } else {
-                    tl.setPower(-power);
-                    tr.setPower(power);
-                    bl.setPower(-power);
-                    br.setPower(power);
-                }
-            }
-            block.backward(0.3);
-            sleep(1200);
-            block.stop();
 
-            while (sensorRange2.getDistance(DistanceUnit.INCH)>28){ //left
-                double power = 0.4;
-                telemetry.addData("angle", getAngle());
-                telemetry.update();
-                if (getAngle() < -1){ //turn left
-                    tl.setPower(-(power - (0.01 * getAngle())));
-                    tr.setPower(-(power - (0.01 * getAngle())));
-                    bl.setPower((power + (0.01 * getAngle())));
-                    br.setPower((power + (0.01 * getAngle())));
-                } else if (getAngle() > 1){ //turn right
-                    tl.setPower(-(power - (0.01 * getAngle())));
-                    tr.setPower(-(power - (0.01 * getAngle())));
-                    bl.setPower(power + (0.01 * getAngle()));
-                    br.setPower(power + (0.01 * getAngle()));
-                } else {
-                    tl.setPower(-power);
-                    tr.setPower(-power);
-                    bl.setPower(power);
-                    br.setPower(power);
-                }
-            }
-
-            block.stop();
-            arm.setPower(-0.5);
-            sleep(500);
-            arm.setPower(0);
-            shooter.setPower(-0.83);
-            transfer.setPower(0.5);
-            intake.setPower(1);
-            sleep(3000); //rev time
-            stopper.setPosition(0);
-            sleep(3000); //shoot time
-            shooter.setPower(0);
-            transfer.setPower(0);
-            intake.setPower(0);
-
-            while (sensorRange2.getDistance(DistanceUnit.INCH)>8){ //left
-                double power = 0.4;
-                telemetry.addData("angle", getAngle());
-                telemetry.update();
-                if (getAngle() < -1){ //turn left
-                    tl.setPower(-(power - (0.01 * getAngle())));
-                    tr.setPower(-(power - (0.01 * getAngle())));
-                    bl.setPower((power + (0.01 * getAngle())));
-                    br.setPower((power + (0.01 * getAngle())));
-                } else if (getAngle() > 1){ //turn right
-                    tl.setPower(-(power - (0.01 * getAngle())));
-                    tr.setPower(-(power - (0.01 * getAngle())));
-                    bl.setPower(power + (0.01 * getAngle()));
-                    br.setPower(power + (0.01 * getAngle()));
-                } else {
-                    tl.setPower(-power);
-                    tr.setPower(-power);
-                    bl.setPower(power);
-                    br.setPower(power);
-                }
-            }
-            block.backward(0.5);
-            sleep(2000);
-            block.rightturn(0.5);
-            sleep(200);
-
-            block.stop();
-            arm.setPower(-0.5);
-            sleep(800);
-            arm.setPower(0);
-            sleep(500);
-            claw1.setPosition(0);
-            claw2.setPosition(1);
-            arm.setPower(0.5);
-            sleep(300);
-            arm.setPower(0);
-
-            block.forward(0.5);
-            sleep(1200);
-            block.stop();
-
-
-            stop();
-
-
+        if (tfod != null) {
+            tfod.activate();
+            tfod.setZoom(1, 16.0/9.0); //sets camera zoom and aspect ratio
         }
+
+        tl = hardwareMap.get(DcMotor.class, "tl");
+        tr = hardwareMap.get(DcMotor.class, "tr");
+        bl = hardwareMap.get(DcMotor.class, "bl");
+        br = hardwareMap.get(DcMotor.class, "br");
+        intake = hardwareMap.get(DcMotor.class, "intake");
+        arm = hardwareMap.get(DcMotor.class, "arm");
+        Servo lever = hardwareMap.get(Servo.class, "lever");
+        CRServo spinner = hardwareMap.get(CRServo.class, "spinner");
+
+        sensorRange1 = hardwareMap.get(DistanceSensor.class, "left");
+        sensorRange2 = hardwareMap.get(DistanceSensor.class, "right");
+        sensorRange3 = hardwareMap.get(DistanceSensor.class, "back");
+
+        tl.setDirection(DcMotor.Direction.FORWARD);
+        bl.setDirection(DcMotor.Direction.FORWARD);
+        tr.setDirection(DcMotor.Direction.REVERSE);
+        br.setDirection(DcMotor.Direction.REVERSE);
+        intake.setDirection(DcMotor.Direction.FORWARD);
+        arm.setDirection(DcMotor.Direction.FORWARD);
+
+        motorblock block = new motorblock(tl, tr, bl, br);
+
+        /** Wait for the game to begin */
+        telemetry.addData(">", "Press Play to start op mode");
+        telemetry.addData("angle", getAngle());
+        telemetry.update();
+
+        waitForStart();
+
+        while (opModeIsActive()) {
+
+            telemetry.addData("angle", getAngle());
+            telemetry.update();
+
+            if (tfod != null) {
+                // getUpdatedRecognitions() will return null if no new information is available since
+                // the last time that call was made.
+                List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+
+                if (updatedRecognitions != null) {
+                    telemetry.addData("# Object Detected", updatedRecognitions.size());
+                    // step through the list of recognitions and display boundary info.
+                    int i = 0;
+
+                    for (Recognition recognition : updatedRecognitions) {
+                        telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
+                        telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
+                                recognition.getLeft(), recognition.getTop());
+                        telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
+                                recognition.getRight(), recognition.getBottom());
+                        i++;
+                    }
+
+                    telemetry.update();
+
+                    if (updatedRecognitions.isEmpty() != true) {
+                        //updatedRecognitions.get(0).getLabel().equals("Duck");
+                        telemetry.update();
+                        if (updatedRecognitions.get(0).getLeft() < 220){
+                            tl.setPower(0.5);
+                            tr.setPower(0.5);
+                            bl.setPower(-0.5);
+                            br.setPower(-0.5);
+                            sleep (2000);
+                            block.stop();
+                        }
+                        else {
+                            tl.setPower(0.5);
+                            tr.setPower(-0.5);
+                            bl.setPower(0.5);
+                            br.setPower(-0.5);
+                            sleep(2000);
+                            block.stop();
+                        }
+                    } else {
+                        tl.setPower(-0.5);
+                        tr.setPower(-0.5);
+                        bl.setPower(0.5);
+                        br.setPower(0.5);
+                        sleep(2000);
+                        block.stop();
+                    }
+                }
+
+                stop();
+            }
+        }
+
+    }
+
+    /**
+     * Initialize the Vuforia localization engine.
+     */
+    private void initVuforia() {
+        /*
+         * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
+         */
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+
+        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+        parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
+
+        //  Instantiate the Vuforia engine
+        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+
+        // Loading trackables is not necessary for the TensorFlow Object Detection engine.
+    }
+
+    /**
+     * Initialize the TensorFlow Object Detection engine.
+     */
+    private void initTfod() {
+        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfodParameters.minResultConfidence = 0.8f;
+        tfodParameters.isModelTensorFlow2 = true;
+        tfodParameters.inputSize = 320;
+        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
     }
 }

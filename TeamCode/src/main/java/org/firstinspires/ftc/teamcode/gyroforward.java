@@ -24,7 +24,6 @@ import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 @Autonomous
 public class gyroforward extends LinearOpMode {
 
-    private DistanceSensor sensorRange;
 
     BNO055IMU imu;
     BNO055IMU.Parameters parameters;
@@ -88,9 +87,7 @@ public class gyroforward extends LinearOpMode {
         DcMotor bl = hardwareMap.get(DcMotor.class, "bl");
         DcMotor br = hardwareMap.get(DcMotor.class, "br");
         motorblock block = new motorblock(tl, tr, bl, br);
-        sensorRange = hardwareMap.get(DistanceSensor.class, "sensor_range");
 
-        Rev2mDistanceSensor sensorTimeOfFlight = (Rev2mDistanceSensor) sensorRange;
         imuinit();
         waitForStart();
         while (opModeIsActive()) {
@@ -99,22 +96,11 @@ public class gyroforward extends LinearOpMode {
 
             telemetry.addData("angle", getAngle());
             telemetry.update();
-            if (getAngle() < -1){ //turn left
-                tl.setPower(power + (0.01 * getAngle()));
-                tr.setPower(-(power - (0.01 * getAngle())));
-                bl.setPower(power + (0.01 * getAngle()));
-                br.setPower(-(power - (0.01 * getAngle())));
-            } else if (getAngle() > 1){ //turn right
-                tl.setPower(power + (0.01 * getAngle()));
-                tr.setPower(-(power - (0.01 * getAngle())));
-                bl.setPower(power + (0.01 * getAngle()));
-                br.setPower(-(power - (0.01 * getAngle())));
-            } else {
-                tl.setPower(power);
-                tr.setPower(-power);
-                bl.setPower(power);
-                br.setPower(-power);
-            }
+                tl.setPower(power - (0.01 * getAngle()));
+                tr.setPower(-(power + (0.01 * getAngle())));
+                bl.setPower(power - (0.01 * getAngle()));
+                br.setPower(-(power + (0.01 * getAngle())));
+
 
 
 

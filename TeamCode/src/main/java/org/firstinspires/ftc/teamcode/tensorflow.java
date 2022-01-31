@@ -25,7 +25,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 @Autonomous
-
+@Disabled
 public class tensorflow extends LinearOpMode {
     private DistanceSensor sensorRange;
     private DistanceSensor sensorRange2;

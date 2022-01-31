@@ -48,11 +48,10 @@ public class teleop extends LinearOpMode {
         Servo lever = hardwareMap.get(Servo.class, "lever");
         CRServo spinner = hardwareMap.get(CRServo.class, "spinner");
 
-
-        tl.setDirection(DcMotor.Direction.FORWARD);
-        bl.setDirection(DcMotor.Direction.FORWARD);
-        tr.setDirection(DcMotor.Direction.REVERSE);
-        br.setDirection(DcMotor.Direction.REVERSE);
+        tl.setDirection(DcMotor.Direction.REVERSE);
+        bl.setDirection(DcMotor.Direction.REVERSE);
+        tr.setDirection(DcMotor.Direction.FORWARD);
+        br.setDirection(DcMotor.Direction.FORWARD);
         intake.setDirection(DcMotor.Direction.FORWARD);
         arm.setDirection(DcMotor.Direction.FORWARD);
 
@@ -70,42 +69,69 @@ public class teleop extends LinearOpMode {
             horizontal = gamepad1.left_stick_x;
             turn = gamepad1.right_stick_x;
             armpower = gamepad2.left_stick_y;
+            double slowmode = .3;
 
-            tl.setPower(0.5*(turn + (-vertical) + horizontal));
-            tr.setPower(0.5*((-turn) + (-vertical) - horizontal));
-            bl.setPower(0.5*(turn + (-vertical) - horizontal));
-            br.setPower(0.5*((-turn) + (-vertical) + horizontal));
-
-
-
-                if (gamepad2.right_trigger > 0) { // intake
-                    intake.setPower(-1);
-                } else intake.setPower(0);
-                if (gamepad2.left_trigger > 0) { //outtake
-                    intake.setPower(1);
-                } else intake.setPower(0);
-
-                arm.setPower(-armpower); //arm
-
-                if (gamepad2.a) {
-                    lever.setPosition(0.5); //release
-                }
-                if (gamepad2.b) {
-                    lever.setPosition(1); //reset
-                }
-                if (gamepad2.y) {
-                    lever.setPosition(0.9); //transfer position
-                }
-
-                if (gamepad2.dpad_left) { //duck spinner
-                    spinner.setPower(1);
-                } else spinner.setPower(0);
-                if (gamepad2.dpad_right) {
-                    spinner.setPower(-1);
-                } else spinner.setPower(0);
-
+            if (gamepad1.right_trigger > 0) {
+                tl.setPower(slowmode*(turn + (vertical) + horizontal));
+                tr.setPower(slowmode*((-turn) + (vertical) - horizontal));
+                bl.setPower(slowmode*(turn + (vertical) - horizontal));
+                br.setPower(slowmode*((-turn) + (vertical) + horizontal));
             }
+            else {
+                tl.setPower(0.7*(turn + (vertical) + horizontal));
+                tr.setPower(0.7*((-turn) + (vertical) - horizontal));
+                bl.setPower(0.7*(turn + (vertical) - horizontal));
+                br.setPower(0.7*((-turn) + (vertical) + horizontal));
+            }
+
+            if (gamepad2.right_trigger > 0) { // intake
+                intake.setPower(-1);
+            } else intake.setPower(0);
+            if (gamepad2.left_trigger > 0) { //outtake
+                intake.setPower(1);
+            } else intake.setPower(0);
+
+            arm.setPower(-armpower); //arm
+
+            if (gamepad2.a) {
+                lever.setPosition(0.5); //release
+            }
+            if (gamepad2.b) {
+                lever.setPosition(1); //reset
+            }
+            if (gamepad2.y) {
+                lever.setPosition(0.9); //transfer position
+            }
+
+            if (gamepad2.dpad_left) { //duck spinner
+                spinner.setPower(1);
+            } else spinner.setPower(0);
+            if (gamepad2.dpad_right) {
+                spinner.setPower(-1);
+            } else spinner.setPower(0);
+
+            if (gamepad2.x) {
+                arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            }
+            if (gamepad2.left_stick_y < 0 || gamepad2.left_stick_y > 0) {
+                arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                arm.setPower(-armpower);
+            }
+            if (gamepad2.dpad_up) {
+                arm.setTargetPosition(3300);
+                arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                arm.setPower(1);
+                sleep(3000);
+            }
+            if (gamepad2.dpad_down) {
+                arm.setTargetPosition(420);
+                arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                arm.setPower(0.8);
+                sleep(3000);
+            }
+
         }
     }
+}
 
 //new arm down

@@ -22,8 +22,7 @@ import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 
 
 @Autonomous
-public class gyroback extends LinearOpMode {
-
+public class forwardshort extends LinearOpMode {
 
     BNO055IMU imu;
     BNO055IMU.Parameters parameters;
@@ -97,21 +96,24 @@ public class gyroback extends LinearOpMode {
             telemetry.addData("angle", getAngle());
             telemetry.update();
             if (getAngle() < -1){ //turn left
-                tl.setPower(-(power - (0.01 * getAngle())));
-                tr.setPower((power + (0.01 * getAngle())));
-                bl.setPower(-(power - (0.01 * getAngle())));
-                br.setPower((power + (0.01 * getAngle())));
+                tl.setPower(power + (0.01 * getAngle()));
+                tr.setPower(-(power - (0.01 * getAngle())));
+                bl.setPower(power + (0.01 * getAngle()));
+                br.setPower(-(power - (0.01 * getAngle())));
             } else if (getAngle() > 1){ //turn right
-                tl.setPower(-(power - (0.01 * getAngle())));
-                tr.setPower((power + (0.01 * getAngle())));
-                bl.setPower(-(power - (0.01 * getAngle())));
-                br.setPower((power + (0.01 * getAngle())));
+                tl.setPower(power + (0.01 * getAngle()));
+                tr.setPower(-(power - (0.01 * getAngle())));
+                bl.setPower(power + (0.01 * getAngle()));
+                br.setPower(-(power - (0.01 * getAngle())));
             } else {
-                tl.setPower(-power);
-                tr.setPower(power);
-                bl.setPower(-power);
-                br.setPower(power);
+                tl.setPower(power);
+                tr.setPower(-power);
+                bl.setPower(power);
+                br.setPower(-power);
             }
+            sleep(4000);
+            block.stop();
+            stop();
 
 
 

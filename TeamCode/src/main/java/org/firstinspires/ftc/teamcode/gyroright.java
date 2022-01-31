@@ -24,8 +24,6 @@ import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 @Autonomous
 public class gyroright extends LinearOpMode {
 
-    private DistanceSensor sensorRange;
-
     BNO055IMU imu;
     BNO055IMU.Parameters parameters;
     Orientation lastAngles = new Orientation();
@@ -88,9 +86,7 @@ public class gyroright extends LinearOpMode {
         DcMotor bl = hardwareMap.get(DcMotor.class, "bl");
         DcMotor br = hardwareMap.get(DcMotor.class, "br");
         motorblock block = new motorblock(tl, tr, bl, br);
-        sensorRange = hardwareMap.get(DistanceSensor.class, "sensor_range");
 
-        Rev2mDistanceSensor sensorTimeOfFlight = (Rev2mDistanceSensor) sensorRange;
         imuinit();
         waitForStart();
         while (opModeIsActive()) {
