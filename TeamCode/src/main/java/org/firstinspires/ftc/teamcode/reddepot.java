@@ -16,6 +16,8 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -32,9 +34,11 @@ public class reddepot extends LinearOpMode {
     private DcMotor br = null;
     private DcMotor intake = null;
     private DcMotor arm = null;
-    private DistanceSensor sensorRange1;
-    private DistanceSensor sensorRange2;
-    private DistanceSensor sensorRange3;
+    private DistanceSensor left;
+    private DistanceSensor right;
+    private DistanceSensor back;
+    private ElapsedTime runtime = new ElapsedTime();
+
 
     BNO055IMU imu;
     BNO055IMU.Parameters parameters;
@@ -53,64 +57,46 @@ public class reddepot extends LinearOpMode {
         telemetry.addData("Gyro Mode", "calibrating...");
         telemetry.update();
 
-
         while (!isStopRequested() && !imu.isGyroCalibrated()) {
             sleep(50);
             idle();
         }
-
         telemetry.addData("Gyro Mode", "ready");
-
         telemetry.addData("imu calib status", imu.getCalibrationStatus().toString());
-
         telemetry.update();
-
     }
-
     private void resetAngle() {
         lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-
         globalAngle = 0;
     }
-
     private double getAngle() {
-
         Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-
         double deltaAngle = angles.firstAngle - lastAngles.firstAngle;
-
         if (deltaAngle < -180)
             deltaAngle += 360;
         else if (deltaAngle > 180)
             deltaAngle -= 360;
-
         globalAngle += deltaAngle;
-
         lastAngles = angles;
-
         return globalAngle;
     }
-
     private static final String TFOD_MODEL_ASSET = "FreightFrenzy_BCDM.tflite";
     private static final String[] LABELS = {
             "Ball",
             "Cube",
             "Duck",
-    };
 
+    };
     private static final String VUFORIA_KEY =
             "ASK1IFv/////AAABmfX8FNhgmkD+sKsolRwQ6ShIKlMBrgagR3WWfuzHquZIi3lQ5TFj8sAK1gmeujmQm8I62YVaT/Z3X5XIHGawMeaNm7BnVeU5scz+HdlNLlVrCDbuIb8sJ29tn/mBfWuv3Hvy40iP9uOtEAKi9diyxRsAiytHqfsCvccIem7+C7O6Zbiz3awD5CobXCqevYjWdUGGZarPM2eAyL/NfCswBIdYd1Hjb3VHqJ/tyb1VZdWYlme0pkAKLWbYpRKFlq5Q8EOrzmVWTAw4fCLziKSKYFVFFPNoibGm7cAGsqk+5UD3kOpcoPOhSlDM3GEPMYartSro28s1DB1uFaojEVNE+PJ5fMaWWCsfi9japsdcrP6Q";
-
     private VuforiaLocalizer vuforia;
-
     private TFObjectDetector tfod;
 
     @Override
     public void runOpMode() {
-
+        imuinit();
         initVuforia();
         initTfod();
-        imuinit();
 
         if (tfod != null) {
             tfod.activate();
@@ -125,18 +111,14 @@ public class reddepot extends LinearOpMode {
         arm = hardwareMap.get(DcMotor.class, "arm");
         Servo lever = hardwareMap.get(Servo.class, "lever");
         CRServo spinner = hardwareMap.get(CRServo.class, "spinner");
-
-        sensorRange1 = hardwareMap.get(DistanceSensor.class, "left");
-        sensorRange2 = hardwareMap.get(DistanceSensor.class, "right");
-        sensorRange3 = hardwareMap.get(DistanceSensor.class, "back");
-
-        tl.setDirection(DcMotor.Direction.FORWARD);
-        bl.setDirection(DcMotor.Direction.FORWARD);
-        tr.setDirection(DcMotor.Direction.REVERSE);
-        br.setDirection(DcMotor.Direction.REVERSE);
+        left = hardwareMap.get(DistanceSensor.class, "left");
+        right = hardwareMap.get(DistanceSensor.class, "right");
+        back = hardwareMap.get(DistanceSensor.class, "back");
+        Rev2mDistanceSensor sensorTimeOfFlight1 = (Rev2mDistanceSensor) left;
+        Rev2mDistanceSensor sensorTimeOfFlight2 = (Rev2mDistanceSensor) right;
+        Rev2mDistanceSensor sensorTimeOfFlight3 = (Rev2mDistanceSensor) back;
         intake.setDirection(DcMotor.Direction.FORWARD);
         arm.setDirection(DcMotor.Direction.FORWARD);
-
         motorblock block = new motorblock(tl, tr, bl, br);
 
         /** Wait for the game to begin */
@@ -148,6 +130,9 @@ public class reddepot extends LinearOpMode {
 
         while (opModeIsActive()) {
 
+            resetStartTime();
+            arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            lever.setPosition(1);
             telemetry.addData("angle", getAngle());
             telemetry.update();
 
@@ -155,7 +140,6 @@ public class reddepot extends LinearOpMode {
                 // getUpdatedRecognitions() will return null if no new information is available since
                 // the last time that call was made.
                 List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-
                 if (updatedRecognitions != null) {
                     telemetry.addData("# Object Detected", updatedRecognitions.size());
                     // step through the list of recognitions and display boundary info.
@@ -169,39 +153,191 @@ public class reddepot extends LinearOpMode {
                                 recognition.getRight(), recognition.getBottom());
                         i++;
                     }
-
                     telemetry.update();
+
 
                     if (updatedRecognitions.isEmpty() != true) {
                         //updatedRecognitions.get(0).getLabel().equals("Duck");
                         telemetry.update();
-                        if (updatedRecognitions.get(0).getLeft() < 220){
-                            tl.setPower(0.5);
-                            tr.setPower(0.5);
-                            bl.setPower(-0.5);
-                            br.setPower(-0.5);
-                            sleep (2000);
+                        if (updatedRecognitions.get(0).getLeft() < 220){ //left
+                            while (time < 3) {
+                                block.leftturn(0.025 * (getAngle() + 35));
+                            }
                             block.stop();
-                        }
-                        else {
-                            tl.setPower(0.5);
-                            tr.setPower(-0.5);
-                            bl.setPower(0.5);
-                            br.setPower(-0.5);
-                            sleep(2000);
+                            block.backward(0.3);
+                            arm.setTargetPosition(5500);
+                            arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                            arm.setPower(1);
+                            sleep(1400);
                             block.stop();
+                            sleep(1800);
+                            lever.setPosition(0.5);
+                            sleep(1000);
+                            lever.setPosition(1);
+                            arm.setTargetPosition(0);
+                            arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                            arm.setPower(0.8);
+                            sleep(3000);
+                            while (time < 12) {
+                                block.leftturn(0.02 * (getAngle() + 180));
+                            }
+                            resetAngle();
+                            sleep(500);
+                            while (time < 20) {
+                                double power = 0.2;
+                                double differenceStraight = (back.getDistance(DistanceUnit.INCH) - 6.8);
+                                double straight = differenceStraight*0.3;
+                                double differenceSide = (left.getDistance(DistanceUnit.INCH) - 1);
+                                double side = differenceSide*0.3;
+                                double tlStraight = (straight*(-(power + (0.01 * getAngle()))));
+                                double trStraight = (straight*((power - (0.01 * getAngle()))));
+                                double blStraight = (straight*(-(power + (0.01 * getAngle()))));
+                                double brStraight = (straight*((power - (0.01 * getAngle()))));
+                                double tlSide = (side*((power - (0.01 * getAngle()))));
+                                double trSide = (side*((power - (0.01 * getAngle()))));
+                                double blSide = (side*(-(power + (0.01 * getAngle()))));
+                                double brSide = (side*(-(power + (0.01 * getAngle()))));
+
+                                tl.setPower(tlStraight + tlSide);
+                                tr.setPower(trStraight + trSide);
+                                bl.setPower(blStraight + blSide);
+                                br.setPower(brStraight + brSide);
+
+                                if (-0.5 < differenceStraight && differenceStraight < 0.5
+                                        && -0.5 < differenceSide && differenceSide < 0.5) {
+                                    block.leftturn(0.035*getAngle());
+                                }
+                                    spinner.setPower(-0.3);
+                            }
+                            block.stop();
+                            spinner.setPower(0);
+                            sleep(500);
+                            block.forward(0.3);
+                            sleep(1800);
+                            block.stop();
+                            stop();
                         }
-                    } else {
-                        tl.setPower(-0.5);
-                        tr.setPower(-0.5);
-                        bl.setPower(0.5);
-                        br.setPower(0.5);
-                        sleep(2000);
+                        else { //middle
+                            while (time < 3) {
+                                block.leftturn(0.025 * (getAngle() + 35));
+                            }
+                            block.stop();
+                            block.backward(0.3);
+                            arm.setTargetPosition(4700);
+                            arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                            arm.setPower(1);
+                            sleep(1600);
+                            block.stop();
+                            sleep(1800);
+                            lever.setPosition(0.5);
+                            sleep(1000);
+                            lever.setPosition(1);
+                            arm.setTargetPosition(0);
+                            arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                            arm.setPower(0.8);
+                            sleep(3000);
+                            while (time < 12) {
+                                block.leftturn(0.02 * (getAngle() + 180));
+                            }
+                            resetAngle();
+                            sleep(500);
+                            while (time < 20) {
+                                double power = 0.2;
+                                double differenceStraight = (back.getDistance(DistanceUnit.INCH) - 6.8);
+                                double straight = differenceStraight*0.3;
+                                double differenceSide = (left.getDistance(DistanceUnit.INCH) - 1);
+                                double side = differenceSide*0.3;
+                                double tlStraight = (straight*(-(power + (0.01 * getAngle()))));
+                                double trStraight = (straight*((power - (0.01 * getAngle()))));
+                                double blStraight = (straight*(-(power + (0.01 * getAngle()))));
+                                double brStraight = (straight*((power - (0.01 * getAngle()))));
+                                double tlSide = (side*((power - (0.01 * getAngle()))));
+                                double trSide = (side*((power - (0.01 * getAngle()))));
+                                double blSide = (side*(-(power + (0.01 * getAngle()))));
+                                double brSide = (side*(-(power + (0.01 * getAngle()))));
+
+                                tl.setPower(tlStraight + tlSide);
+                                tr.setPower(trStraight + trSide);
+                                bl.setPower(blStraight + blSide);
+                                br.setPower(brStraight + brSide);
+
+                                if (-0.5 < differenceStraight && differenceStraight < 0.5
+                                        && -0.5 < differenceSide && differenceSide < 0.5) {
+                                    block.leftturn(0.035*getAngle());
+                                }
+                                spinner.setPower(-0.3);
+                            }
+                            block.stop();
+                            spinner.setPower(0);
+                            sleep(500);
+                            block.forward(0.3);
+                            sleep(1800);
+                            block.stop();
+                            stop();
+                        }
+                    } else { //right
+                        while (time < 3) {
+                            block.leftturn(0.025 * (getAngle() + 35));
+                        }
                         block.stop();
+                        block.backward(0.3);
+                        arm.setTargetPosition(3300);
+                        arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        arm.setPower(1);
+                        sleep(2700);
+                        block.stop();
+                        sleep(1800);
+                        lever.setPosition(0.5);
+                        sleep(1000);
+                        lever.setPosition(1);
+                        arm.setTargetPosition(0);
+                        arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        arm.setPower(0.8);
+                        sleep(3000);
+                        block.forward(0.3);
+                        sleep(500);
+                        block.stop();
+                        sleep(500);
+                        while (time < 15) {
+                            block.leftturn(0.02 * (getAngle() + 180));
+                        }
+                        resetAngle();
+                        sleep(500);
+                        while (time < 20) {
+                            double power = 0.2;
+                            double differenceStraight = (back.getDistance(DistanceUnit.INCH) - 6.8);
+                            double straight = differenceStraight*0.3;
+                            double differenceSide = (left.getDistance(DistanceUnit.INCH) - 1);
+                            double side = differenceSide*0.3;
+                            double tlStraight = (straight*(-(power + (0.01 * getAngle()))));
+                            double trStraight = (straight*((power - (0.01 * getAngle()))));
+                            double blStraight = (straight*(-(power + (0.01 * getAngle()))));
+                            double brStraight = (straight*((power - (0.01 * getAngle()))));
+                            double tlSide = (side*((power - (0.01 * getAngle()))));
+                            double trSide = (side*((power - (0.01 * getAngle()))));
+                            double blSide = (side*(-(power + (0.01 * getAngle()))));
+                            double brSide = (side*(-(power + (0.01 * getAngle()))));
+
+                            tl.setPower(tlStraight + tlSide);
+                            tr.setPower(trStraight + trSide);
+                            bl.setPower(blStraight + blSide);
+                            br.setPower(brStraight + brSide);
+
+                            if (-0.5 < differenceStraight && differenceStraight < 0.5
+                                    && -0.5 < differenceSide && differenceSide < 0.5) {
+                                block.leftturn(0.035*getAngle());
+                            }
+                            spinner.setPower(-0.3);
+                        }
+                        block.stop();
+                        spinner.setPower(0);
+                        sleep(1000);
+                        block.forward(0.3);
+                        sleep(1800);
+                        block.stop();
+                        stop();
                     }
                 }
-
-                stop();
             }
         }
 

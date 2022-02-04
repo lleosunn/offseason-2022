@@ -114,7 +114,6 @@ public class redduck extends LinearOpMode {
             double blSide = (side*(-(power + (0.01 * getAngle()))));
             double brSide = (side*(-(power + (0.01 * getAngle()))));
 
-
             tl.setPower(tlStraight + tlSide);
             tr.setPower(trStraight + trSide);
             bl.setPower(blStraight + blSide);

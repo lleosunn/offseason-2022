@@ -82,8 +82,7 @@ public class gyro extends LinearOpMode {
         imuinit();
         waitForStart();
         while (opModeIsActive()) {
-            double power = 0.3;
-            block.leftturn(0.075*getAngle());
+            block.leftturn(0.02 * (getAngle() + 30));
         }
     }
 }
