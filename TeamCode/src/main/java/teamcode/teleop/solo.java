@@ -117,15 +117,15 @@ public class solo extends LinearOpMode {
             double blV = y * Math.cos(theta + (Math.PI/4));
             double brV = y * Math.sin(theta + (Math.PI/4));
 
-//            tl.setPower(y + x - turn);
-//            tr.setPower(y - x + turn);
-//            bl.setPower(y - x - turn);
-//            br.setPower(y + x + turn);
+            tl.setPower(y + x - turn);
+            tr.setPower(y - x + turn);
+            bl.setPower(y - x - turn);
+            br.setPower(y + x + turn);
 
-            tl.setPower(tlV - tlH - turn);
-            tr.setPower(trV - trH + turn);
-            bl.setPower(blV - blH - turn);
-            br.setPower(brV - brH + turn);
+//            tl.setPower(tlV - tlH - turn);
+//            tr.setPower(trV - trH + turn);
+//            bl.setPower(blV - blH - turn);
+//            br.setPower(brV - brH + turn);
 
             if (gamepad1.right_stick_button) {
                 resetAngle();
