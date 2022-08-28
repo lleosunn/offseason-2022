@@ -2,6 +2,7 @@ package teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+//simple functions
 public class motorblock {
     DcMotor tl;
     DcMotor tr;
