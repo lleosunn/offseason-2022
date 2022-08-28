@@ -135,7 +135,7 @@ public class blueclueless extends LinearOpMode {
             // goes back a little
             block.setDrivetrainMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            block.setDrivetrainTarget(200, -200, 200, -200);
+            block.setDrivetrainTarget(150, -150, 150, -150);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_TO_POSITION);
             block.setDrivetrainPower(0.15, 0.15, 0.15, 0.15);
             sleep(3000);
@@ -149,8 +149,8 @@ public class blueclueless extends LinearOpMode {
             sleep(3000);
 
             // spins the duck
-            intake.setPower(0.5);
-            sleep(3250);
+            intake.setPower(0.35);
+            sleep(5000);
             intake.setPower(0);
 
             // goes to shared
@@ -158,7 +158,7 @@ public class blueclueless extends LinearOpMode {
             block.setDrivetrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
             block.setDrivetrainTarget(750, -750, 750, -750);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_TO_POSITION);
-            sleep(3000);
+            sleep(1500);
 
             // turns right
             block.setDrivetrainMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -184,22 +184,22 @@ public class blueclueless extends LinearOpMode {
             block.setDrivetrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
             block.setDrivetrainTarget(-750, 750, -750, 750);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_TO_POSITION);
-            sleep(3000);
+            sleep(1500);
 
             // goes left
             block.setDrivetrainMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
             block.setDrivetrainTarget(1000, 1000, -1000, -1000);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_TO_POSITION);
-            sleep(3000);
+            sleep(1500);
 
             // rams wall
             block.setDrivetrainMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
             block.setDrivetrainTarget(-200, 200, -200, 200);
-            block.setDrivetrainPower(0.5, 0.5, 0.5, 0.5);
+            block.setDrivetrainPower(0.75, 0.75, 0.75, 0.75);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_TO_POSITION);
-            sleep(3000);
+            sleep(2000);
 
             // goes to park
             block.setDrivetrainMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -207,7 +207,7 @@ public class blueclueless extends LinearOpMode {
             block.setDrivetrainTarget(2000, 2000, -2000, -2000);
             block.setDrivetrainPower(0.5, 0.5, 0.5, 0.5);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_TO_POSITION);
-            sleep(3000);
+            sleep(4000);
 
 
             stop();

@@ -133,9 +133,7 @@ public class solo extends LinearOpMode {
 
             if (gamepad1.right_trigger > 0) { // intake
                 intake.setPower(1);
-            } else intake.setPower(0);
-
-            if (gamepad1.left_trigger > 0) { //outtake
+            } else if (gamepad1.left_trigger > 0) { //outtake
                 intake.setPower(-1);
             } else intake.setPower(0);
 
@@ -165,8 +163,8 @@ public class solo extends LinearOpMode {
             }
 
             if (gamepad1.b) {
-                lever.setPosition(0.96);
-                lever2.setPosition(0.04);
+                lever.setPosition(0.98);
+                lever2.setPosition(0.02);
             }
             if (gamepad1.a) {
                 lever.setPosition(.30);
@@ -177,10 +175,9 @@ public class solo extends LinearOpMode {
                 lever2.setPosition(0.35);
             }
             if (gamepad1.dpad_left) {
-                intake.setPower(-0.75);
-            } else spinner.setPower(0);
-            if (gamepad1.dpad_right) {
-                intake.setPower(0.75);
+                intake.setPower(-0.6);
+            } else if (gamepad1.dpad_right) {
+                intake.setPower(0.6);
             } else spinner.setPower(0);
 
         }

@@ -132,32 +132,46 @@ public class redclueless extends LinearOpMode {
             telemetry.addData("angle", getAngle());
             telemetry.update();
 
+            // strafe left
+            block.setDrivetrainMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            block.setDrivetrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            block.setDrivetrainTarget(200, 200, -200, -200);
+            block.setDrivetrainPower(0.25, 0.25, 0.25, 0.25);
+            block.setDrivetrainMode(DcMotor.RunMode.RUN_TO_POSITION);
+            sleep(3000);
             //move robot forward to duck spinner
             block.setDrivetrainMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
             block.setDrivetrainTarget(-750, 750, -750, 750);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_TO_POSITION);
-            block.setDrivetrainPower(0.5, 0.5, 0.5, 0.5);
+            block.setDrivetrainPower(0.3, 0.3, 0.3, 0.3);
             sleep(3000);
 
             //spin duck off
-            intake.setPower(-0.5);
-            sleep(3250);
+            intake.setPower(-0.35);
+            sleep(5000);
             intake.setPower(0);
-
-            //diagonal
-            block.setDrivetrainMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            block.setDrivetrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            block.setDrivetrainTarget(250, 1000, -1000, -250);
-            block.setDrivetrainMode(DcMotor.RunMode.RUN_TO_POSITION);
-            sleep(3000);
 
             //strafe left
             block.setDrivetrainMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            block.setDrivetrainTarget(800, 800, -800, -800);
+            block.setDrivetrainTarget(200, 200, -200, -200);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_TO_POSITION);
-            sleep(3000);
+            sleep(1500);
+
+            //forward
+            block.setDrivetrainMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            block.setDrivetrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            block.setDrivetrainTarget(-600, 600, -600, 600);
+            block.setDrivetrainMode(DcMotor.RunMode.RUN_TO_POSITION);
+            sleep(1500);
+
+            //strafe left
+            block.setDrivetrainMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            block.setDrivetrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            block.setDrivetrainTarget(900, 900, -900, -900);
+            block.setDrivetrainMode(DcMotor.RunMode.RUN_TO_POSITION);
+            sleep(1500);
 
             //turn right a bit
             block.setDrivetrainMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -182,21 +196,21 @@ public class redclueless extends LinearOpMode {
             block.setDrivetrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
             block.setDrivetrainTarget(-800, -800, 800, 800);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_TO_POSITION);
-            sleep(3000);
+            sleep(1500);
 
             //diagonal
             block.setDrivetrainMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
             block.setDrivetrainTarget(-100, -1000, 1000, 100);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_TO_POSITION);
-            sleep(3000);
+            sleep(2000);
 
             //move robot backward to duck spinner
             block.setDrivetrainMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
             block.setDrivetrainTarget(2500, -2500, 2500, -2500);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_TO_POSITION);
-            block.setDrivetrainPower(0.5, 0.5, 0.5, 0.5);
+            block.setDrivetrainPower(0.75, 0.75, 0.75, 0.755);
             sleep(4000);
 
             stop();
