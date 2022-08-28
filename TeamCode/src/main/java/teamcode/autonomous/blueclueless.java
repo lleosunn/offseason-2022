@@ -24,8 +24,8 @@ import teamcode.motorblock;
 import java.util.List;
 
 @Autonomous
-public class redclueless extends LinearOpMode {
-//declaring motors, distance sensors, timer
+public class blueclueless extends LinearOpMode {
+    //declaring motors, distance sensors, timer
     private DcMotor tl = null;
     private DcMotor tr = null;
     private DcMotor bl = null;
@@ -38,7 +38,7 @@ public class redclueless extends LinearOpMode {
     private DistanceSensor front;
     private ElapsedTime runtime = new ElapsedTime();
 
-//declare gyro (direction, angle)
+    //declare gyro (direction, angle)
     BNO055IMU imu;
     BNO055IMU.Parameters parameters;
     Orientation lastAngles = new Orientation();
@@ -132,83 +132,85 @@ public class redclueless extends LinearOpMode {
             telemetry.addData("angle", getAngle());
             telemetry.update();
 
-            //move robot forward to duck spinner
+            // goes back a little
             block.setDrivetrainMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            block.setDrivetrainTarget(-750, 750, -750, 750);
+            block.setDrivetrainTarget(200, -200, 200, -200);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_TO_POSITION);
-            block.setDrivetrainPower(0.5, 0.5, 0.5, 0.5);
+            block.setDrivetrainPower(0.15, 0.15, 0.15, 0.15);
             sleep(3000);
 
-            //spin duck off
-            intake.setPower(-0.5);
+            // goes to the duck spinner
+            block.setDrivetrainMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            block.setDrivetrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            block.setDrivetrainTarget(-1000, -1000, 1000, 1000);
+            block.setDrivetrainPower(0.35, 0.35, 0.35, 0.35);
+            block.setDrivetrainMode(DcMotor.RunMode.RUN_TO_POSITION);
+            sleep(3000);
+
+            // spins the duck
+            intake.setPower(0.5);
             sleep(3250);
             intake.setPower(0);
 
-            //diagonal
+            // goes to shared
             block.setDrivetrainMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            block.setDrivetrainTarget(250, 1000, -1000, -250);
+            block.setDrivetrainTarget(750, -750, 750, -750);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_TO_POSITION);
             sleep(3000);
 
-            //strafe left
-            block.setDrivetrainMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            block.setDrivetrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            block.setDrivetrainTarget(800, 800, -800, -800);
-            block.setDrivetrainMode(DcMotor.RunMode.RUN_TO_POSITION);
-            sleep(3000);
-
-            //turn right a bit
+            // turns right
             block.setDrivetrainMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
             block.setDrivetrainTarget(-350, -350, -350, -350);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_TO_POSITION);
             sleep(2000);
 
+            // dispense the block
             lever2.setPosition(0.72);
             sleep(500);
             lever2.setPosition(0.35);
 
-            //turn left going back
+            // turns left
             block.setDrivetrainMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
             block.setDrivetrainTarget(350, 350, 350, 350);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_TO_POSITION);
             sleep(2000);
 
-            //strafe right
+            // goes forward to the duck spinner
             block.setDrivetrainMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            block.setDrivetrainTarget(-800, -800, 800, 800);
+            block.setDrivetrainTarget(-750, 750, -750, 750);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_TO_POSITION);
             sleep(3000);
 
-            //diagonal
+            // goes left
             block.setDrivetrainMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            block.setDrivetrainTarget(-100, -1000, 1000, 100);
+            block.setDrivetrainTarget(1000, 1000, -1000, -1000);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_TO_POSITION);
             sleep(3000);
 
-            //move robot backward to duck spinner
+            // rams wall
             block.setDrivetrainMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            block.setDrivetrainTarget(2500, -2500, 2500, -2500);
-            block.setDrivetrainMode(DcMotor.RunMode.RUN_TO_POSITION);
+            block.setDrivetrainTarget(-200, 200, -200, 200);
             block.setDrivetrainPower(0.5, 0.5, 0.5, 0.5);
-            sleep(4000);
+            block.setDrivetrainMode(DcMotor.RunMode.RUN_TO_POSITION);
+            sleep(3000);
+
+            // goes to park
+            block.setDrivetrainMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            block.setDrivetrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            block.setDrivetrainTarget(2000, 2000, -2000, -2000);
+            block.setDrivetrainPower(0.5, 0.5, 0.5, 0.5);
+            block.setDrivetrainMode(DcMotor.RunMode.RUN_TO_POSITION);
+            sleep(3000);
+
 
             stop();
-
-
-
-
-
-
-
-
-
         }
     }
 }
