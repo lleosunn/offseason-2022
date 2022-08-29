@@ -210,7 +210,21 @@ public class redclueless extends LinearOpMode {
             block.setDrivetrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
             block.setDrivetrainTarget(2500, -2500, 2500, -2500);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_TO_POSITION);
-            block.setDrivetrainPower(0.75, 0.75, 0.75, 0.755);
+            block.setDrivetrainPower(0.75, 0.75, 0.75, 0.75);
+            sleep(500);
+
+            block.setDrivetrainMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            block.setDrivetrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            block.setDrivetrainTarget(-350, -350, -350, -350);
+            block.setDrivetrainMode(DcMotor.RunMode.RUN_TO_POSITION);
+            block.setDrivetrainPower(0.5, 0.5, 0.5, 0.5);
+            sleep(2000);
+
+            block.setDrivetrainMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            block.setDrivetrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            block.setDrivetrainTarget(2500, -2500, 2500, -2500);
+            block.setDrivetrainMode(DcMotor.RunMode.RUN_TO_POSITION);
+            block.setDrivetrainPower(0.75, 0.75, 0.75, 0.75);
             sleep(4000);
 
             stop();

@@ -193,6 +193,12 @@ public class blueclueless extends LinearOpMode {
             block.setDrivetrainMode(DcMotor.RunMode.RUN_TO_POSITION);
             sleep(1500);
 
+            block.setDrivetrainMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            block.setDrivetrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            block.setDrivetrainTarget(350, 350, 350, 350);
+            block.setDrivetrainMode(DcMotor.RunMode.RUN_TO_POSITION);
+            sleep(2000);
+
             // rams wall
             block.setDrivetrainMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             block.setDrivetrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
